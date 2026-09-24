@@ -163,3 +163,15 @@ No se pide y **no suma**:
 3. Tipos de dispositivo sugeridos: luz, sensor, cerradura, termostato.
 
 **Fuera de alcance:** dispositivos reales, hardware, MQTT y tiempo real. La API sirve datos, nada más.
+
+## 24/09
+
+**Lo que hay:** sin cambios desde el 16/09. Solo README y `.gitignore`. Ningún commit de Christian todavía.
+
+Todos los demás grupos ya tienen código o base de datos. Están quedando atrás y el calendario no espera: el 30/09 la meta son los endpoints 1 a 3.
+
+**Próximos pasos (urgente)**
+1. `main.py` con `app = FastAPI()` y un endpoint que devuelva JSON. Probarlo con `uvicorn main:app --reload` y `/docs`.
+2. `seed.py` con **SQLAlchemy** (ver [guias/sqlalchemy_orm.md](guias/sqlalchemy_orm.md)): `habitaciones`, `dispositivos` (con `habitacion_id`) y `eventos` (con `dispositivo_id`), ~10 registros por tabla.
+3. `requirements.txt` con `fastapi`, `uvicorn`, `uvicorn-worker`, `gunicorn`, `sqlalchemy`.
+4. Repártanse: uno el seed y otro `main.py`, así los dos aparecen en los commits.
