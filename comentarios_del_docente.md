@@ -187,3 +187,34 @@ Todos los demás grupos ya tienen código o base de datos. Están quedando atrá
 2. `seed.py` con **SQLAlchemy** (ver [guias/sqlalchemy_orm.md](guias/sqlalchemy_orm.md)): `habitaciones`, `dispositivos` (con `habitacion_id`) y `eventos` (con `dispositivo_id`), ~10 registros por tabla.
 3. `requirements.txt` con `fastapi`, `uvicorn`, `uvicorn-worker`, `gunicorn`, `sqlalchemy`.
 4. Repártanse: uno el seed y otro `main.py`, así los dos aparecen en los commits.
+
+## 08/10
+
+**📌 Cambio de criterio: todo en inglés.** Ahora también las **tablas, columnas, rutas y query params** van en inglés, igual que el README, los docstrings y los mensajes de la API. Reemplaza lo dicho el 24/09; está detallado arriba en *Nombres en el código*. El alcance sigue listando los nombres en español solo como referencia.
+
+**📌 Guía nueva (opcional):** [guias/variables_de_entorno.md](guias/variables_de_entorno.md), para sacar la clave del código con un `.env`.
+
+**Lo que hay:** sin cambios. El repo sigue igual que el **16/09**: solo el README de una línea y el `.gitignore`. Van más de tres semanas sin un commit, y Christian todavía no tiene ninguno.
+
+**⚠️ Están muy atrasados.** Hay grupos con los seis endpoints funcionando y el resto ya tiene al menos la base armada. Si están trabados con algo (instalación, git, por dónde empezar), díganmelo en clase o por mensaje: es mejor preguntar que no subir nada.
+
+**Próximos pasos (urgente)** — son los mismos del 24/09, con los nombres ya en inglés:
+1. `main.py` mínimo que levante. Pruébenlo con `uvicorn main:app --reload` y abran `/docs`:
+   ```python
+   from fastapi import FastAPI
+
+   app = FastAPI()
+
+   @app.get("/")
+   def home():
+       return {"message": "HomeCome API"}
+   ```
+2. `db.py` con SQLAlchemy, siguiendo la [guía](guias/sqlalchemy_orm.md). Pueden copiar `guias/pokedex/db.py` y adaptarlo. Las tres tablas, en inglés:
+   - `rooms`: id, name, floor
+   - `devices`: id, name, type (light / sensor / lock / thermostat), status, `room_id` (FK)
+   - `events`: id, date, description, `device_id` (FK)
+3. `seed.py` que cargue unos 10 registros por tabla, solo si la base está vacía (sección 9 de la guía).
+4. `requirements.txt` con `fastapi`, `uvicorn`, `uvicorn-worker`, `gunicorn`, `sqlalchemy`.
+5. Los dos primeros endpoints: `GET /devices?type=&status=` y `GET /devices/{id}` con 404.
+
+Repártanse así: uno hace `db.py` y `seed.py`, el otro `main.py`. Suban cada paso apenas funcione, aunque sea chico.
