@@ -218,3 +218,38 @@ Todos los demás grupos ya tienen código o base de datos. Están quedando atrá
 5. Los dos primeros endpoints: `GET /devices?type=&status=` y `GET /devices/{id}` con 404.
 
 Repártanse así: uno hace `db.py` y `seed.py`, el otro `main.py`. Suban cada paso apenas funcione, aunque sea chico.
+
+## 08/10 — segunda revisión
+
+**Lo que hay:** primer código del proyecto. 👍 Matías subió `main.py`, `seed.py` y `requirements.txt` (que está bien). `seed.py` define las tres tablas como clases de SQLAlchemy, con nombres de clase en inglés (`Room`, `Device`, `Event`), las claves foráneas y las relaciones. Lo probé y crea `homecore.db` con las tres tablas.
+
+**⚠️ `main.py` no arranca.** Abre un archivo `datos.json` que no está en el repo, así que falla en la primera línea con `FileNotFoundError`. Y aunque el archivo estuviera, no es el camino: **los datos salen de la base**, no de un JSON. El endpoint tiene que consultar las tablas que crea el seed.
+
+**⚠️ La API no tiene clave.** Es obligatoria en todos los endpoints. El código está arriba en *Seguridad*.
+
+**⚠️ Christian sigue sin commits.** Tienen que aparecer los dos.
+
+**A corregir en `seed.py`**
+- Carga **una sola habitación** y ningún dispositivo ni evento. Se piden unos 10 registros por tabla.
+- **Duplica los datos:** lo corrí dos veces y quedaron dos "Living". Tiene que cargar solo si la tabla está vacía (sección 9 de la [guía de SQLAlchemy](guias/sqlalchemy_orm.md)).
+- **Tablas y columnas en inglés** (criterio nuevo): `rooms`, `devices`, `events`, con `name`, `floor`, `type`, `status`, `room_id`, `date`, `description`, `device_id`.
+- Las clases y la conexión no van en el seed: van en `models.py`, y `seed.py` las importa. Está explicado en la guía nueva, [guias/estructura_del_proyecto.md](guias/estructura_del_proyecto.md).
+- Usaron el estilo viejo de SQLAlchemy (`Column(Integer, ...)` y `declarative_base()`). Funciona, pero la guía usa el actual (`Mapped[int]` y `mapped_column`). Si siguen el de la guía, pueden copiar los ejemplos tal cual.
+- `sessionmaker` y `check_same_thread` no hacen falta: alcanza con `with Session(engine) as s:`. Hoy la sesión `db` se abre y nunca se cierra.
+
+**A corregir en `main.py`**
+- Nombres en inglés: `obtener_dispositivos`, `archivo`, `datos` e `inicio` son funciones y variables de Python. La ruta también: `GET /devices`.
+- El endpoint 1 lleva dos filtros opcionales: `GET /devices?type=light&status=on`.
+
+**A corregir en el repo**
+- `homecore.db` está subida. Agreguen `*.db` al `.gitignore` (hoy no la cubre) y sáquenla con `git rm --cached homecore.db`.
+- El proyecto se llama **HomeCome** y la base y el mensaje de bienvenida dicen **HomeCore**. Elijan uno.
+- El mensaje del commit es "new change". Tiene que decir qué se hizo.
+- El README sigue con una línea. Hay una guía: [guias/como_escribir_un_readme.md](guias/como_escribir_un_readme.md).
+
+**Próximos pasos**
+1. Mover las tres clases y el `engine` a `models.py`, con tablas y columnas en inglés.
+2. `seed.py` que importe de `models.py` y cargue ~10 habitaciones, ~10 dispositivos y ~10 eventos, solo si la base está vacía. Probar que corre dos veces sin duplicar.
+3. `security.py` con la API key y probar el 401 en `/docs`.
+4. `crud.py` con `list_devices(type, status)` y `get_device(device_id)`, y sus dos endpoints en `main.py`: `GET /devices` y `GET /devices/{id}` con 404.
+5. Christian: tomá `security.py` y los endpoints. Tu primer commit tiene que aparecer esta semana.
