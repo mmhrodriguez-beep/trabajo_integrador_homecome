@@ -288,3 +288,18 @@ Repártanse así: uno hace `db.py` y `seed.py`, el otro `main.py`. Suban cada pa
 - `main.py` no usa `crud.py`: todas las consultas siguen en los endpoints, y las dos funciones de `crud.py` no se llaman desde ningún lado. Lo ideal es moverlas (ver [guias/estructura_del_proyecto.md](guias/estructura_del_proyecto.md)). Si no llegan, borren `crud.py` para que no quede código muerto. En la defensa les pueden preguntar por qué está.
 - Quedan cosas en español: `inicio`, `"mensaje"`, `CLAVE`, `clave` y "API key invalida".
 - "Living Thermostrat" en el seed está mal escrito.
+
+## 21/10 (entrega)
+
+**Lo que hay:** sin cambios desde el **14/10**. El estado es el que describí el 15/10: los cinco GET funcionan, con sus filtros, sus 404 y la clave (401), y el `POST /devices` valida casi todo.
+
+**Lo que quedó pendiente para la defensa (28/10)**, en orden de importancia:
+1. **README.** Sigue con una línea. En la defensa se evalúa que explique cómo correr el proyecto desde cero, los endpoints y cómo usar la clave. Hay una plantilla en [guias/como_escribir_un_readme.md](guias/como_escribir_un_readme.md).
+2. **`try/except` en las consultas.** Sin la base, todos los endpoints dan 500 sin control.
+3. **El `POST /devices`:**
+   - acepta `"room_id": true`;
+   - da 500 con `"name": 123`;
+   - rechaza el `status="locked"` que carga el propio seed;
+   - responde 200 en lugar de 201.
+
+**Para la defensa:** probá la demo completa en la notebook con la que van a presentar. Corran `python seed.py` antes de levantar: el `homecore.db` subido al repo es el viejo, y sin el seed la API da 500. La nota es grupal: los dos tienen que poder explicar cualquier parte del código.
