@@ -13,3 +13,7 @@ def list_devices(db: Session, type: str | None = None, status: str | None = None
 
 def get_device(db: Session, device_id: int):
     return db.query(Device).filter(Device.id == device_id).first()
+
+
+def list_room_devices(db: Session, room_id: int):
+    return db.query(Device).filter(Device.room_id == room_id).all()

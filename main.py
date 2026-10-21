@@ -3,6 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models import Room, Device, Event, engine
 from security import verification
+from crud import get_device, list_devices, list_room_devices
 
 app = FastAPI(dependencies=[Depends(verification)])
 
@@ -16,7 +17,7 @@ def get_db():
 
 
 @app.get("/")
-def inicio():
+def home():
     return {"mensaje": "Welcome to HOMECORE"}
 
 
@@ -26,13 +27,14 @@ def get_devices(
     status: str | None = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(Device)
+    try:
+        devices = list_devices(db, type, status)
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Database error while retrieving devices"
+        )
 
-    if type is not None:
-        query = query.filter(Device.type == type)
-
-    if status is not None:
-        query = query.filter(Device.status == status)
 
     return [
         {
@@ -42,7 +44,7 @@ def get_devices(
             "status": device.status,
             "room_id": device.room_id
         }
-        for device in query.all()
+        for device in devices
     ]
 
 
@@ -51,7 +53,13 @@ def get_device_by_id(
     device_id: int,
     db: Session = Depends(get_db)
 ):
-    device = db.query(Device).filter(Device.id == device_id).first()
+    try:
+        device = get_device(db, device_id)
+    except Exception:
+        raise HTTPException(
+        status_code=500,
+        detail="Database error while retrieving device"
+    )
 
     if device is None:
         raise HTTPException(status_code=404, detail="Device not found")
@@ -66,16 +74,22 @@ def get_device_by_id(
 
 @app.get("/rooms/{room_id}/devices")
 def get_room_devices(room_id: int, db: Session = Depends(get_db)):
-    room = db.query(Room).filter(Room.id == room_id).first()
+    try:
+        room = db.query(Room).filter(Room.id == room_id).first()
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Database error while retrieving room"
+        )
 
     if room is None:
         raise HTTPException(status_code=404, detail="Room not found")
 
-    devices = db.query(Device).filter(Device.room_id == room_id).all()
+    devices = list_room_devices(db, room_id)
 
     return [
         {
-            "id": device.id,
+            "id": device.id,    
             "name": device.name,
             "type": device.type,
             "status": device.status,
@@ -89,10 +103,19 @@ def get_events(
     device_id: int | None = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(Event)
+    try:
+        query = db.query(Event)
 
-    if device_id is not None:
-        query = query.filter(Event.device_id == device_id)
+        if device_id is not None:
+            query = query.filter(Event.device_id == device_id)
+
+        events = query.all()
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Database error while retrieving events"
+        )
 
     return [
         {
@@ -101,26 +124,34 @@ def get_events(
             "description": event.description,
             "device_id": event.device_id
         }
-        for event in query.all()
+        for event in events
     ]
 
 @app.get("/summary")
 def get_summary(db: Session = Depends(get_db)):
-    rooms = db.query(Room).all()
+    try:
+        rooms = db.query(Room).all()
 
-    return [
-        {
-            "room_id": room.id,
-            "room_name": room.name,
-            "devices_on": db.query(Device).filter(
-                Device.room_id == room.id,
-                Device.status == "on"
-            ).count()
-        }
-        for room in rooms
-    ]
+        summary = [
+            {
+                "room_id": room.id,
+                "room_name": room.name,
+                "devices_on": db.query(Device).filter(
+                    Device.room_id == room.id,
+                    Device.status == "on"
+                ).count()
+            }
+            for room in rooms
+        ]
 
-@app.post("/devices")
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Database error while retrieving summary"
+        )
+
+    return summary
+@app.post("/devices", status_code=201)
 def create_device(data: dict, db: Session = Depends(get_db)):
     required_fields =  ["name", "type", "status", "room_id"]
 
@@ -141,17 +172,20 @@ def create_device(data: dict, db: Session = Depends(get_db)):
             detail="Invalid device status"
         )
 
-    if not isinstance(data["room_id"], int):
+    if isinstance(data["room_id"], bool) or not isinstance(data["room_id"], int):
         raise HTTPException(
             status_code=400, 
             detail="room_id must be an integer"
         )   
 
-    if not data ["name"].strip():
+    if not isinstance(data["name"], str):
+       raise HTTPException(status_code=400, detail="Name must be a string")
+
+    if not data["name"].strip():
         raise HTTPException(
-            status_code=400,    
+            status_code=400, 
             detail="Name cannot be empty"
-        )
+        )   
 
     room = db.query(Room).filter(Room.id == data["room_id"]).first()
     if room is None:

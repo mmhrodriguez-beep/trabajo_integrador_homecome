@@ -14,40 +14,27 @@ def seed_database():
                 Room(name="Garage", floor=0),
                 Room(name="Bedroom 2", floor=2),
                 Room(name="Office", floor=1),
+                Room(name="Dining Room", floor=1),
+                Room(name="Patio", floor=0),
+                Room(name="Laundy Room", floor=-1),
+
             ]
             db.add_all(rooms)
             db.commit()
 
-        if db.query(Room).count() == 7:
-            extra_rooms = [
-                Room(name="Dining Room", floor=1),
-                Room(name="Laundry Room", floor=0),
-                Room(name="Patio", floor=2),
-            ]
-            existing_names: set[str] = {
-                room.name for room in db.query(Room).all()
-            }
-
-            for room in extra_rooms:
-                if room.name not in existing_names:
-                    db.add(room)
-
-            db.commit()
-
     with Session(engine) as db:
-
         if db.query(Device).count() == 0:
             devices = [
                 Device(name="Living Light", type="light", status="on", room_id=1),
                 Device(name="Kitchen Light", type="light", status="off", room_id=2),
                 Device(name="Motion Sensor", type="sensor", status="on", room_id=1),
-                Device(name="Front Door Lock", type="lock", status="locked", room_id=1),
-                Device(name="Living Thermostrat", type="thermostat", status="on", room_id=1),
+                Device(name="Front Door Lock", type="lock", status="on", room_id=1),
+                Device(name="Living Thermostat", type="thermostat", status="on", room_id=1),
                 Device(name="Bedroom Light", type="light", status="off", room_id=3),
                 Device(name="Garage Sensor", type="sensor", status="on", room_id=5),
                 Device(name="Office Thermostat", type="thermostat", status="off", room_id=7),
                 Device(name="Patio Light", type="light", status="on", room_id=10),  
-                Device(name="Bedroom Lock", type="lock", status="locked", room_id=6),
+                Device(name="Bedroom Lock", type="lock", status="on", room_id=6),
 
             ]  
             db.add_all(devices)
