@@ -303,3 +303,17 @@ Repártanse así: uno hace `db.py` y `seed.py`, el otro `main.py`. Suban cada pa
    - responde 200 en lugar de 201.
 
 **Para la defensa:** probá la demo completa en la notebook con la que van a presentar. Corran `python seed.py` antes de levantar: el `homecore.db` subido al repo es el viejo, y sin el seed la API da 500. La nota es grupal: los dos tienen que poder explicar cualquier parte del código.
+
+**Actualización (21/10, noche):** Matías completó el README y las validaciones, y agregó el `try/except`. Lo probé:
+- Los 6 endpoints funcionan, con sus filtros y sus 404.
+- El `POST` ahora rechaza `room_id: true` (400) y `name: 123` (400), y devuelve 201 con datos válidos.
+- Sin la base, todos responden un error controlado.
+- Sin clave da 401.
+
+**El Nivel A está completo.** 🎉
+
+**Recomendaciones para la defensa:**
+- En el README, el `git clone` dice `<repository-url>`: pongan la URL real.
+- Agreguen la declaración de uso de IA (si la usaron).
+- El `POST` rechaza `status="locked"`, pero tendría sentido aceptarlo para las cerraduras.
+- Christian: la nota es grupal; preparate para explicar cualquier parte del código.
